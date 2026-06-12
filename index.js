@@ -19,17 +19,23 @@ app.post('/login', async (req, res) => {
   try {
     const { username, password, appKey } = req.body;
     const params = new URLSearchParams({ username, password });
-    const response = await fetch('https://identitysso-cert.betfair.com/api/login', {
+    const response = await fetch('https://identitysso.betfair.com/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'X-Application': appKey,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0'
       },
       body: params
     });
-    const data = await response.json();
-    res.json(data);
+    const text = await response.text();
+    console.log('login raw response:', text);
+    try {
+      res.json(JSON.parse(text));
+    } catch(e) {
+      res.json({ status: 'FAIL', error: 'raw: ' + text.substring(0, 200) });
+    }
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
