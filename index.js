@@ -19,7 +19,7 @@ app.post('/login', async (req, res) => {
   try {
     const { username, password, appKey } = req.body;
     const params = new URLSearchParams({ username, password });
-    const response = await fetch('https://identitysso.betfair.com/api/login', {
+    const response = await fetch('https://identitysso-cert.betfair.com/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
