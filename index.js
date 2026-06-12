@@ -1,12 +1,20 @@
 const express = require('express');
 const fetch = require('node-fetch');
-const cors = require('cors');
- 
+
 const app = express();
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
 app.use(express.json());
- 
+
+app.get('/', (req, res) => res.send('Betfair proxy running'));
+
 app.post('/login', async (req, res) => {
   try {
     const { username, password, appKey } = req.body;
@@ -26,7 +34,7 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
- 
+
 app.post('/api', async (req, res) => {
   try {
     const { appKey, sessionToken, body } = req.body;
@@ -46,6 +54,6 @@ app.post('/api', async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
- 
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Proxy running on port ${PORT}`));
