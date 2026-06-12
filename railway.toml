@@ -1,4 +1,0 @@
-[
-deploy
-]
-startCommand = "node index.js"
