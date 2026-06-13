@@ -15,27 +15,22 @@ app.use(express.json());
 
 app.get('/', (req, res) => res.send('Betfair proxy running'));
 
-app.post('/test', async (req, res) => {
-  const { sessionToken, appKey } = req.body;
-  console.log('TEST — appKey:', appKey);
-  console.log('TEST — token length:', sessionToken ? sessionToken.length : 'null');
-  console.log('TEST — token value:', sessionToken);
+app.get('/keepalive', async (req, res) => {
+  const { token, appKey } = req.query;
+  console.log('keepalive attempt with token:', token);
   try {
-    const response = await fetch('https://api.betfair.com/exchange/betting/json-rpc/v1', {
-      method: 'POST',
+    const response = await fetch('https://identitysso.betfair.com/api/keepAlive', {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'X-Application': appKey,
-        'X-Authentication': sessionToken,
+        'X-Authentication': token,
         'Accept': 'application/json'
-      },
-      body: JSON.stringify([{ jsonrpc: '2.0', method: 'SportsAPING/v1.0/listEventTypes', params: { filter: {} }, id: 1 }])
+      }
     });
     const text = await response.text();
-    console.log('TEST — Betfair raw response (first 300 chars):', text.substring(0, 300));
-    res.json({ tokenReceived: sessionToken, responsePreview: text.substring(0, 300) });
+    console.log('keepalive response:', text);
+    res.send(text);
   } catch(e) {
-    console.error('TEST error:', e.message);
     res.status(500).json({ error: e.message });
   }
 });
